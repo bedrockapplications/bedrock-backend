@@ -1,32 +1,37 @@
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcrypt");
+
 const saveUser = asyncHandler(async (req, res) => {
   console.log("inside save method");
 
+  const salt = await bcrypt.genSalt(10);
+  const hp = await bcrypt.hash(req.body.password, salt);
   const data = new User({
     firstName: req.body.firstName,
     lastName: req.body.firstName,
     email: req.body.email,
-    password: req.body.password,
+    password: hp,
     phoneNumber: req.body.phoneNumber,
     securityQuestions: req.body.securityQuestions,
     companyInformation: req.body.companyInformation,
     billingInformation: req.body.billingInformation,
   });
+
   try {
     const saveduser = await data.save();
+    res.json(saveduser);
   } catch {
     throw new Error("Duplicate Email, please enter a different email");
   }
-  const saveduser = await data.save();
-
-  res.json(saveduser);
 });
 
 const getUserbyEmail = asyncHandler(async (req, res) => {
   const exists = await User.findOne({ email: req.query.email });
   if (exists) {
-    res.send("Email Already Exists,Please signin with another email");
+    res.status(400);
+    throw new Error("Email Already Exists,Please signin with another email");
+    //res.send();
   } else {
     res.status(200).send("done");
   }
@@ -35,10 +40,12 @@ const getUserbyEmail = asyncHandler(async (req, res) => {
 const updateUser = asyncHandler(async (req, res) => {
   console.log("inside update method");
 
+  const salt = await bcrypt.genSalt(10);
+  const hp = await bcrypt.hash(req.body.password, salt);
   const email = req.body.email,
     fname = req.body.firstName,
     lname = req.body.lastName,
-    password = req.body.password,
+    password = hp,
     phone = req.body.phoneNumber,
     securityQuestions = req.body.securityQuestions,
     companyInformation = req.body.companyInformation,
@@ -73,11 +80,14 @@ const updateUser = asyncHandler(async (req, res) => {
 
 const updatePassword = asyncHandler(async (req, res) => {
   const { email, password, schoolName, bornCity } = req.body;
+
+  const salt = await bcrypt.genSalt(10);
+  const hp = await bcrypt.hash(password, salt);
   User.findOneAndUpdate(
     { email: email },
     {
       $set: {
-        password: password,
+        password: hp,
       },
     },
     { new: true },
@@ -97,13 +107,13 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
-  if (user && user.password == password) {
-    //await bcrypt.compare(password, user.password)
+  if (user && (await bcrypt.compare(password, user.password))) {
     res.status(201).json(user);
   } else {
-    res
-      .status(400)
-      .send("The email or password you entered is incorrect, please try again");
+    res.status(400);
+    throw new Error(
+      "The email or password you entered is incorrect, please try again"
+    );
   }
 });
 
