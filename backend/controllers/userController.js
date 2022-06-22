@@ -31,12 +31,30 @@ const getUserbyEmail = asyncHandler(async (req, res) => {
   if (exists) {
     res.status(400);
     throw new Error("Email Already Exists,Please signin with another email");
-    //res.send();
   } else {
-    res.status(200).send("done");
+    res.status(200).send({ success: "done" });
   }
 });
 
+const SecurityCheck = asyncHandler(async (req, res) => {
+  const userexists = await User.findOne({ email: req.query.email });
+  const sclname = req.query.schoolName,
+    born = req.query.bornCity;
+
+  if (userexists) {
+    if (
+      userexists.securityQuestions.schoolName == sclname &&
+      userexists.securityQuestions.bornCity == born
+    ) {
+      res.send({ success: "valid" });
+    } else {
+      res.status(400);
+      throw new Error("Invalid Security Answers");
+    }
+  } else {
+    throw new Error("User not found");
+  }
+});
 const updateUser = asyncHandler(async (req, res) => {
   console.log("inside update method");
 
@@ -79,7 +97,7 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 
 const updatePassword = asyncHandler(async (req, res) => {
-  const { email, password, schoolName, bornCity } = req.body;
+  const { email, password } = req.body;
 
   const salt = await bcrypt.genSalt(10);
   const hp = await bcrypt.hash(password, salt);
@@ -93,11 +111,15 @@ const updatePassword = asyncHandler(async (req, res) => {
     { new: true },
     (err, data) => {
       if (err) {
-        res.send("Error");
+        throw new Error("Error");
       } else {
         if (data != null) {
-          res.send("Password updated Successfully");
-        } else res.send("Email Not Found");
+          res.send({ success: "Password updated Successfully" });
+        } else {
+          res.status(500);
+          res.send({ message: "Email Not Found " });
+          //throw new Error("Email Not Found ");
+        }
       }
     }
   );
@@ -123,4 +145,5 @@ module.exports = {
   getUserbyEmail,
   loginUser,
   updatePassword,
+  SecurityCheck,
 };
