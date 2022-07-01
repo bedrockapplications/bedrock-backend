@@ -9,10 +9,10 @@ const {
   SecurityCheck,
 } = require("../controllers/userController");
 
-router.post("/", saveUser);
-router.put("/:email", updateUser);
-router.put("/", updatePassword);
-router.get("/email", getUserbyEmail);
+router.post("/save", saveUser);
+router.put("/update/:email", updateUser);
+router.put("/resetpassword", updatePassword);
+router.get("/finduser", getUserbyEmail);
 router.post("/login", loginUser);
-router.get("/check", SecurityCheck);
+router.get("/securitycheck", SecurityCheck);
 module.exports = router;

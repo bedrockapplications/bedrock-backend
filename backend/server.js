@@ -16,12 +16,8 @@ app.use(
     origin: "*",
   })
 );
-app.use("/save", require("./routes/userRoutes.js"));
-app.use("/update", require("./routes/userRoutes.js"));
-app.use("/resetpassword", require("./routes/userRoutes.js"));
-app.use("/find", require("./routes/userRoutes.js"));
-app.use("/user", require("./routes/userRoutes.js"));
-app.use("/security", require("./routes/userRoutes.js"));
+app.use("/api/user", require("./routes/userRoutes.js"));
+app.use("/api/project", require("./routes/projectRoutes.js"));
 
 app.use(errorHandler);
 
