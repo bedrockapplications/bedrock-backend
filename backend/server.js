@@ -5,7 +5,7 @@ const cors = require("cors");
 connectDb();
 const app = express();
 const mongoose = require("mongoose");
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 const { errorHandler } = require("./middleware/middleware");
 
 app.use(express.json());
