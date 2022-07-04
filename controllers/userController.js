@@ -40,6 +40,7 @@ const SecurityCheck = asyncHandler(async (req, res) => {
   const userexists = await User.findOne({ email: req.query.email });
   const sclname = req.query.schoolName,
     born = req.query.bornCity;
+    
 
   if (userexists) {
     if (
