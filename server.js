@@ -16,7 +16,6 @@ app.use(
     origin: "*",
   })
 );
-
 app.use("/api/user", require("./routes/userRoutes.js"));
 app.use("/api/project", require("./routes/projectRoutes.js"));
 
