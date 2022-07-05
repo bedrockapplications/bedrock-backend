@@ -32,7 +32,7 @@ const getUserbyEmail = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Email Already Exists,Please signin with another email");
   } else {
-    res.status(200).send({ success: "Deployed" });
+    res.status(200).send({ success: "done" });
   }
 });
 
