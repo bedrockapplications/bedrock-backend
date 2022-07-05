@@ -36,6 +36,15 @@ const getUserbyEmail = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserDetails = asyncHandler(async (req, res) => {
+  const exists = await User.findOne({ email: req.query.email });
+  if (exists) {
+    res.status(200).send(exists);
+  } else {
+    throw new Error("User Does not Exist");
+  }
+});
+
 const SecurityCheck = asyncHandler(async (req, res) => {
   const userexists = await User.findOne({ email: req.query.email });
   const sclname = req.query.schoolName,
@@ -144,6 +153,7 @@ module.exports = {
   saveUser,
   updateUser,
   getUserbyEmail,
+  getUserDetails,
   loginUser,
   updatePassword,
   SecurityCheck,
