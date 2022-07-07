@@ -42,9 +42,9 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
 }).fields([
-  { name: "Photos", maxCount: 1 },
-  { name: "Blueprints", maxCount: 1 },
-  { name: "Documents", maxCount: 1 },
+  { name: "Photos", maxCount: 8 },
+  { name: "Blueprints", maxCount: 8 },
+  { name: "Documents", maxCount: 8 },
 ]);
 
 router.post("/upload", upload, uploadProject);

@@ -3,6 +3,33 @@ const Project = require("../models/projectModel");
 
 const uploadProject = asyncHandler(async (req, res) => {
   try {
+    let photoArray = [],
+      BpArray = [],
+      docArray = [];
+    req.files.Photos.forEach((e) => {
+      const val = {
+        data: e.filename,
+        contentType: e.mimetype,
+      };
+      photoArray.push(val);
+    });
+
+    req.files.Blueprints.forEach((element) => {
+      const val = {
+        data: element.filename,
+        contentType: element.mimetype,
+      };
+      BpArray.push(val);
+    });
+
+    req.files.Documents.forEach((element) => {
+      const val = {
+        data: element.filename,
+        contentType: element.mimetype,
+      };
+      docArray.push(val);
+    });
+
     const projectupload = new Project({
       projectName: req.body.projectName,
       ClientPhNumber: req.body.ClientPhNumber,
@@ -14,18 +41,9 @@ const uploadProject = asyncHandler(async (req, res) => {
       BuildingSplit: req.body.BuildingSplit,
       ConcreteSplit: req.body.ConcreteSplit,
       StartDate: req.body.StartDate,
-      Photos: {
-        data: req.files.Photos[0].filename,
-        contentType: req.files.Photos[0].mimetype,
-      },
-      Blueprints: {
-        data: req.files.Blueprints[0].filename,
-        contentType: req.files.Blueprints[0].mimetype,
-      },
-      Documents: {
-        data: req.files.Documents[0].filename,
-        contentType: req.files.Documents[0].mimetype,
-      },
+      Photos: photoArray,
+      Blueprints: BpArray,
+      Documents: docArray,
     });
     const savedproject = await projectupload.save();
     res.send(savedproject);

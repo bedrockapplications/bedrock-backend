@@ -12,18 +12,24 @@ const projectSchema = mongoose.Schema(
     BuildingSplit: String,
     ConcreteSplit: String,
     StartDate: String,
-    Photos: {
-      data: Buffer,
-      contentType: String,
-    },
-    Blueprints: {
-      data: Buffer,
-      contentType: String,
-    },
-    Documents: {
-      data: Buffer,
-      contentType: String,
-    },
+    Photos: [
+      {
+        data: Buffer,
+        contentType: String,
+      },
+    ],
+    Blueprints: [
+      {
+        data: Buffer,
+        contentType: String,
+      },
+    ],
+    Documents: [
+      {
+        data: Buffer,
+        contentType: String,
+      },
+    ],
   },
   {
     timestamps: true,
