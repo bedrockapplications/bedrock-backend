@@ -9,7 +9,7 @@ const saveUser = asyncHandler(async (req, res) => {
   const hp = await bcrypt.hash(req.body.password, salt);
   const data = new User({
     firstName: req.body.firstName,
-    lastName: req.body.firstName,
+    lastName: req.body.lastName,
     email: req.body.email,
     password: hp,
     phoneNumber: req.body.phoneNumber,
@@ -49,7 +49,6 @@ const SecurityCheck = asyncHandler(async (req, res) => {
   const userexists = await User.findOne({ email: req.query.email });
   const sclname = req.query.schoolName,
     born = req.query.bornCity;
-    
 
   if (userexists) {
     if (
