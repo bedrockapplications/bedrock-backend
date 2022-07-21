@@ -8,26 +8,26 @@ const projectSchema = mongoose.Schema(
     City: String,
     State: String,
     Zipcode: Number,
-    Acreage: Number,
-    BuildingSplit: String,
-    ConcreteSplit: String,
     StartDate: String,
     Photos: [
       {
         data: Buffer,
         contentType: String,
+        _id: false,
       },
     ],
     Blueprints: [
       {
         data: Buffer,
         contentType: String,
+        _id: false,
       },
     ],
     Documents: [
       {
         data: Buffer,
         contentType: String,
+        _id: false,
       },
     ],
   },
