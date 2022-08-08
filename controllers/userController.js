@@ -1,6 +1,6 @@
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt"); 
 
 const saveUser = asyncHandler(async (req, res) => {
   console.log("inside save method");
