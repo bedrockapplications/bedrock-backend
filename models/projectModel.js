@@ -30,6 +30,7 @@ const projectSchema = mongoose.Schema(
         _id: false,
       },
     ],
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
   },
   {
     timestamps: true,

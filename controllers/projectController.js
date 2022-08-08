@@ -41,6 +41,7 @@ const uploadProject = asyncHandler(async (req, res) => {
       Photos: photoArray,
       Blueprints: BpArray,
       Documents: docArray,
+      userId: req.body.userId,
     });
     const savedproject = await projectupload.save();
     res.send(savedproject);
@@ -51,7 +52,10 @@ const uploadProject = asyncHandler(async (req, res) => {
 });
 
 const getProjects = asyncHandler(async (req, res) => {
-  const allData = await Project.find();
+  const allData = await Project.find({ userId: req.query.userId }).populate({
+    path: "userId",
+    select: ["firstName", "lastName"],
+  });
   res.json(allData);
 });
 
