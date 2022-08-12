@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Project = require("../models/projectModel");
+const fs = require("fs");
 
 const uploadProject = asyncHandler(async (req, res) => {
   try {
@@ -8,7 +9,7 @@ const uploadProject = asyncHandler(async (req, res) => {
       docArray = [];
     req.files.Photos.forEach((e) => {
       const val = {
-        data: e.filename,
+        data: fs.readFileSync("uploads/" + e.filename),
         contentType: e.mimetype,
       };
       photoArray.push(val);
@@ -59,4 +60,9 @@ const getProjects = asyncHandler(async (req, res) => {
   res.json(allData);
 });
 
-module.exports = { uploadProject, getProjects };
+const getProjectById = asyncHandler(async (req, res) => {
+  const project = await Project.findById({ _id: req.query._id });
+  res.json(project);
+});
+
+module.exports = { uploadProject, getProjects, getProjectById };

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   uploadProject,
   getProjects,
+  getProjectById,
 } = require("../controllers/projectController");
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -49,4 +50,5 @@ const upload = multer({
 
 router.post("/upload", upload, uploadProject);
 router.get("/getprojects", getProjects);
+router.get("/getprojectdetailsbyid", getProjectById);
 module.exports = router;
