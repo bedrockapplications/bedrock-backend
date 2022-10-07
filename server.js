@@ -1,4 +1,4 @@
-const express = require("express"); 
+const express = require("express");
 const dotenv = require("dotenv").config();
 const connectDb = require("./db");
 const cors = require("cors");
@@ -18,6 +18,7 @@ app.use(
 );
 app.use("/api/user", require("./routes/userRoutes.js"));
 app.use("/api/project", require("./routes/projectRoutes.js"));
+app.use("/api/document", require("./routes/documentRoutes.js"));
 
 app.use(errorHandler);
 
