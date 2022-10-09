@@ -18,3 +18,4 @@ router.get("/details", getUserDetails);
 router.post("/login", loginUser);
 router.get("/securitycheck", SecurityCheck);
 module.exports = router;
+
