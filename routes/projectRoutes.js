@@ -52,3 +52,4 @@ router.post("/upload", upload, uploadProject);
 router.get("/getprojects", getProjects);
 router.get("/getprojectdetailsbyid", getProjectById);
 module.exports = router;
+
