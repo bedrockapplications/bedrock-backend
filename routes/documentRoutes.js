@@ -52,3 +52,4 @@ router.post("/createMeeting", createMeeting);
 router.get("/getMeetings", getMeetingsbyId);
 router.delete("/deletemeeting/:_id", deleteMeetingbyId);
 module.exports = router;
+
