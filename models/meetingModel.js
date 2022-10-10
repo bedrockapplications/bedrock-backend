@@ -4,16 +4,11 @@ const meetingSchema = mongoose.Schema(
   {
     title: String,
     description: String,
-    startDate: {
-      type: Date,
-      min: new Date(),
-    },
-    endDate: {
-      type: Date,
-      min: new Date(),
-    },
+    startDate: Date,
+    endDate: Date,
     startTime: String,
     endTime: String,
+    partiesInvolved: String,
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
   },
   {

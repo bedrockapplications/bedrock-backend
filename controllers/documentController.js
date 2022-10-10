@@ -72,6 +72,7 @@ const createMeeting = asyncHandler(async (req, res) => {
       endDate: new Date(req.body.endDate),
       startTime: req.body.startTime,
       endTime: req.body.endTime,
+      partiesInvolved: req.body.partiesInvolved,
       userId: req.body.userId,
     });
     const savedmeeting = await meeting.save();
@@ -84,7 +85,10 @@ const createMeeting = asyncHandler(async (req, res) => {
 
 const getMeetingsbyId = asyncHandler(async (req, res) => {
   const userMeeting = await Meeting.find({
-    $and: [{ userId: req.query.userId }, { startDate: new Date() }],
+    $and: [
+      { userId: req.query.userId },
+      { startDate: new Date().toISOString().split("T")[0] },
+    ],
   });
   res.json(userMeeting);
 });
