@@ -84,10 +84,15 @@ const createMeeting = asyncHandler(async (req, res) => {
 });
 
 const getMeetingsbyId = asyncHandler(async (req, res) => {
+  var date = new Date();
+  var year = date.toLocaleString("default", { year: "numeric" });
+  var month = date.toLocaleString("default", { month: "2-digit" });
+  var day = date.toLocaleString("default", { day: "2-digit" });
+  var formattedDate = year + "-" + month + "-" + day;
   const userMeeting = await Meeting.find({
     $and: [
       { userId: req.query.userId },
-      { startDate: new Date().toISOString().split("T")[0] },
+      { startDate: new Date(formattedDate) },
     ],
   });
   res.json(userMeeting);
@@ -106,5 +111,3 @@ module.exports = {
   getMeetingsbyId,
   deleteMeetingbyId,
 };
-
-
