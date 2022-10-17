@@ -15,8 +15,14 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+const meetingstorage = multer.diskStorage({
+  destination: "attachments",
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 const fileFilter = (req, file, cb) => {
-  if (file.fieldname === "docs") {
+  if (file.fieldname === "docs" || file.fieldname === "attachment") {
     if (
       file.mimetype === "image/png" ||
       file.mimetype === "image/jpg" ||
@@ -44,12 +50,16 @@ const upload = multer({
   fileFilter: fileFilter,
 }).single("docs");
 
+const meetingupload = multer({
+  storage: meetingstorage,
+  fileFilter: fileFilter,
+}).single("attachment");
+
 router.post("/uploadDocument", upload, uploadDocument);
 router.get("/getDocs", getDocuments);
 router.get("/getDocsByName", getDocsbyName);
 
-router.post("/createMeeting", createMeeting);
+router.post("/createMeeting", meetingupload, createMeeting);
 router.get("/getMeetings", getMeetingsbyId);
 router.delete("/deletemeeting/:_id", deleteMeetingbyId);
 module.exports = router;
-

@@ -9,6 +9,10 @@ const meetingSchema = mongoose.Schema(
     startTime: String,
     endTime: String,
     partiesInvolved: String,
+    attachments: {
+      data: Buffer,
+      _id: false,
+    },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
   },
   {

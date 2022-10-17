@@ -72,6 +72,9 @@ const createMeeting = asyncHandler(async (req, res) => {
       endDate: new Date(req.body.endDate),
       startTime: req.body.startTime,
       endTime: req.body.endTime,
+      attachments: {
+        data: fs.readFileSync("attachments/" + req.file.filename),
+      },
       partiesInvolved: req.body.partiesInvolved,
       userId: req.body.userId,
     });
@@ -84,15 +87,10 @@ const createMeeting = asyncHandler(async (req, res) => {
 });
 
 const getMeetingsbyId = asyncHandler(async (req, res) => {
-  var date = new Date();
-  var year = date.toLocaleString("default", { year: "numeric" });
-  var month = date.toLocaleString("default", { month: "2-digit" });
-  var day = date.toLocaleString("default", { day: "2-digit" });
-  var formattedDate = year + "-" + month + "-" + day;
   const userMeeting = await Meeting.find({
     $and: [
       { userId: req.query.userId },
-      { startDate: new Date(formattedDate) },
+      { startDate: new Date(req.query.startDate) },
     ],
   });
   res.json(userMeeting);
