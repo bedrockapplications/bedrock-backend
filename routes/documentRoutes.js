@@ -29,7 +29,8 @@ const fileFilter = (req, file, cb) => {
       file.mimetype === "image/jpeg" ||
       file.mimetype ===
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-      file.mimetype === "application/msword"
+      file.mimetype === "application/msword" ||
+      file.mimetype === "application/pdf"
     ) {
       // check file type to be pdf, doc, or docx
       cb(null, true);
