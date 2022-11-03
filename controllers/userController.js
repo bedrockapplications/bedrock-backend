@@ -1,6 +1,6 @@
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
-const bcrypt = require("bcrypt"); 
+const bcrypt = require("bcrypt");
 
 const saveUser = asyncHandler(async (req, res) => {
   console.log("inside save method");
@@ -13,6 +13,7 @@ const saveUser = asyncHandler(async (req, res) => {
     email: req.body.email,
     password: hp,
     phoneNumber: req.body.phoneNumber,
+    role: "",
     securityQuestions: req.body.securityQuestions,
     companyInformation: req.body.companyInformation,
     billingInformation: req.body.billingInformation,
@@ -74,6 +75,7 @@ const updateUser = asyncHandler(async (req, res) => {
     lname = req.body.lastName,
     password = hp,
     phone = req.body.phoneNumber,
+    role = "owner",
     securityQuestions = req.body.securityQuestions,
     companyInformation = req.body.companyInformation,
     billingInformation = req.body.billingInformation; //id = req.params._id,
@@ -87,6 +89,7 @@ const updateUser = asyncHandler(async (req, res) => {
         lastName: lname,
         password: password,
         phoneNumber: phone,
+        role: role,
         securityQuestions,
         companyInformation,
         billingInformation,

@@ -9,6 +9,9 @@ const documentSchema = mongoose.Schema(
       data: Buffer,
       _id: false,
     },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
+    projectId: { type: mongoose.Schema.Types.ObjectId, ref: "project" },
+    categoryType: String,
   },
   {
     timestamps: true,

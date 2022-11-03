@@ -1,6 +1,6 @@
-const mongoose = require("mongoose"); 
+const mongoose = require("mongoose");
 
-const projectSchema = mongoose.Schema( 
+const projectSchema = mongoose.Schema(
   {
     projectName: String,
     ClientPhNumber: Number,
@@ -9,27 +9,27 @@ const projectSchema = mongoose.Schema(
     State: String,
     Zipcode: Number,
     StartDate: String,
-    Photos: [
-      {
-        data: Buffer,
-        contentType: String,
-        _id: false,
-      },
-    ],
-    Blueprints: [
-      {
-        data: Buffer,
-        contentType: String,
-        _id: false,
-      },
-    ],
-    Documents: [
-      {
-        data: Buffer,
-        contentType: String,
-        _id: false,
-      },
-    ],
+    // Photos: [
+    //   {
+    //     data: Buffer,
+    //     contentType: String,
+    //     _id: false,
+    //   },
+    // ],
+    // Blueprints: [
+    //   {
+    //     data: Buffer,
+    //     contentType: String,
+    //     _id: false,
+    //   },
+    // ],
+    // Documents: [
+    //   {
+    //     data: Buffer,
+    //     contentType: String,
+    //     _id: false,
+    //   },
+    // ],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
   },
   {

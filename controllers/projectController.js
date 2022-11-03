@@ -4,33 +4,33 @@ const fs = require("fs");
 
 const uploadProject = asyncHandler(async (req, res) => {
   try {
-    let photoArray = [],
-      BpArray = [],
-      docArray = [];
-    req.files.Photos.forEach((e) => {
-      const val = {
-        data: fs.readFileSync("uploads/" + e.filename),
-        contentType: e.mimetype,
-      };
-      photoArray.push(val);
-    });
+    // let photoArray = [],
+    //   BpArray = [],
+    //   docArray = [];
+    // req.files.Photos.forEach((e) => {
+    //   const val = {
+    //     data: fs.readFileSync("uploads/" + e.filename),
+    //     contentType: e.mimetype,
+    //   };
+    //   photoArray.push(val);
+    // });
 
-    req.files.Blueprints.forEach((element) => {
-      const val = {
-        data: element.filename,
-        contentType: element.mimetype,
-      };
-      BpArray.push(val);
-    });
+    // req.files.Blueprints.forEach((element) => {
+    //   const val = {
+    //     data: element.filename,
+    //     contentType: element.mimetype,
+    //   };
+    //   BpArray.push(val);
+    // });
 
-    req.files.Documents.forEach((element) => {
-      const val = {
-        data: element.filename,
-        contentType: element.mimetype,
-      };
-      docArray.push(val);
-    });
-
+    // req.files.Documents.forEach((element) => {
+    //   const val = {
+    //     data: element.filename,
+    //     contentType: element.mimetype,
+    //   };
+    //   docArray.push(val);
+    // });
+    console.log("project detials", req.body);
     const projectupload = new Project({
       projectName: req.body.projectName,
       ClientPhNumber: req.body.ClientPhNumber,
@@ -39,9 +39,9 @@ const uploadProject = asyncHandler(async (req, res) => {
       State: req.body.State,
       Zipcode: req.body.Zipcode,
       StartDate: req.body.StartDate,
-      Photos: photoArray,
-      Blueprints: BpArray,
-      Documents: docArray,
+      // Photos: photoArray,
+      // Blueprints: BpArray,
+      // Documents: docArray,
       userId: req.body.userId,
     });
     const savedproject = await projectupload.save();

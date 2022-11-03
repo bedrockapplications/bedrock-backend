@@ -5,10 +5,14 @@ const {
   uploadDocument,
   getDocuments,
   getDocsbyName,
+  getDocsDynamically,
+  updateDocuments,
+  deleteDocumentById,
   createMeeting,
   getMeetingsbyId,
   deleteMeetingbyId,
 } = require("../controllers/documentController");
+
 const storage = multer.diskStorage({
   destination: "documents",
   filename: (req, file, cb) => {
@@ -59,6 +63,9 @@ const meetingupload = multer({
 router.post("/uploadDocument", upload, uploadDocument);
 router.get("/getDocs", getDocuments);
 router.get("/getDocsByName", getDocsbyName);
+router.get("/getDynamicDocs", getDocsDynamically);
+router.put("/updateDocument/:_id", upload, updateDocuments);
+router.delete("/deleteDocument/:_id", deleteDocumentById);
 
 router.post("/createMeeting", meetingupload, createMeeting);
 router.get("/getMeetings", getMeetingsbyId);

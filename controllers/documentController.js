@@ -12,6 +12,9 @@ const uploadDocument = asyncHandler(async (req, res) => {
       documents: {
         data: fs.readFileSync("documents/" + req.file.filename),
       },
+      userId: req.body.userId,
+      projectId: req.body.projectId,
+      categoryType: req.body.categoryType,
     });
     const saveddocument = await docupload.save();
     res.send(saveddocument);
@@ -63,6 +66,77 @@ const getDocsbyName = asyncHandler(async (req, res) => {
   res.json(searchnames);
 });
 
+const getDocsDynamically = asyncHandler(async (req, res) => {
+  let Filterquery = [];
+
+  if (req.query.userId !== "" && req.query.userId != undefined) {
+    Filterquery.push({ userId: req.query.userId });
+  }
+  if (req.query.projectId !== "" && req.query.projectId != undefined) {
+    Filterquery.push({ projectId: req.query.projectId });
+  }
+  if (req.query.categoryType !== "" && req.query.categoryType != undefined) {
+    Filterquery.push({
+      categoryType: req.query.categoryType,
+    });
+  }
+
+  const dynamicparams = await Docs.find({
+    $and: Filterquery,
+  }).exec();
+  res.json(dynamicparams);
+});
+
+const updateDocuments = asyncHandler(async (req, res) => {
+  const upobj = {};
+  const docid = req.params._id;
+  const dbdocument = await Docs.findById(docid);
+  if (
+    dbdocument.fileName != req.file.originalname &&
+    dbdocument.ContentType != req.file.mimetype
+  ) {
+    upobj["fileName"] = req.file.originalname;
+    upobj["contentType"] = req.file.mimetype;
+    upobj["documents.data"] = fs.readFileSync("documents/" + req.file.filename);
+  }
+  if (dbdocument.userId != req.body.userId && req.body.userId != "") {
+    upobj["userId"] = req.body.userId;
+  }
+  //console.log("projectId from db", dbdocument.projectId);
+  //console.log("projectId from req", req.body.projectId);
+  if (dbdocument.projectId != req.body.projectId && req.body.projectId != "") {
+    upobj["projectId"] = req.body.projectId;
+  }
+  if (
+    dbdocument.categoryType != req.body.categoryType &&
+    req.body.categoryType != ""
+  ) {
+    upobj["categoryType"] = req.body.categoryType;
+  }
+  console.log("updated obj", upobj);
+  Docs.findOneAndUpdate(
+    { _id: docid },
+    {
+      $set: upobj,
+    },
+    { new: true },
+    (err, data) => {
+      if (err) {
+        res.send("Error");
+      } else {
+        if (data != null) {
+          res.send(data);
+        } else res.send("Document Not Found");
+      }
+    }
+  );
+});
+
+const deleteDocumentById = asyncHandler(async (req, res) => {
+  const delDocument= await Docs.findByIdAndDelete(req.params._id);
+  res.json(delDocument.fileName + " is Deleted Successfully");
+});
+
 const createMeeting = asyncHandler(async (req, res) => {
   try {
     const meeting = new Meeting({
@@ -104,6 +178,9 @@ module.exports = {
   uploadDocument,
   getDocuments,
   getDocsbyName,
+  getDocsDynamically,
+  updateDocuments,
+  deleteDocumentById,
   createMeeting,
   getMeetingsbyId,
   deleteMeetingbyId,

@@ -56,6 +56,7 @@ const userScheme = mongoose.Schema(
       type: Number,
       required: [true, "please add a Phone Number"],
     },
+    role: String,
     securityQuestions: secQuesSchema,
     companyInformation: companySchema,
     billingInformation: billingSchema,
