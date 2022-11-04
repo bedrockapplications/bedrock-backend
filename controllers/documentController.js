@@ -6,11 +6,13 @@ const fs = require("fs");
 const uploadDocument = asyncHandler(async (req, res) => {
   try {
     let DocArray = [];
+
     req.files.forEach((e) => {
+      let ctype = e.originalname.split(".");
       const val = {
         data: fs.readFileSync("documents/" + e.filename),
-        contentType: e.mimetype,
-        fileName: e.originalname,
+        contentType: ctype[1],
+        fileName: ctype[0],
       };
       DocArray.push(val);
     });
@@ -34,6 +36,7 @@ const getDocuments = asyncHandler(async (req, res) => {
     const pageNumber = parseInt(req.query.pageNumber) || 0;
     const limit = parseInt(req.query.limit) || 12;
     const uid = req.query.userId;
+    const pid = req.query.projectId;
     const result = {};
 
     let startIndex = pageNumber * limit;
@@ -41,11 +44,11 @@ const getDocuments = asyncHandler(async (req, res) => {
 
     let Filterquery = [];
 
-    if (req.query.userId !== "" && req.query.userId != undefined) {
-      Filterquery.push({ userId: req.query.userId });
+    if (uid !== "" && uid != undefined) {
+      Filterquery.push({ userId: uid });
     }
-    if (req.query.projectId !== "" && req.query.projectId != undefined) {
-      Filterquery.push({ projectId: req.query.projectId });
+    if (pid !== "" && pid != undefined) {
+      Filterquery.push({ projectId: pid });
     }
     if (req.query.categoryType !== "" && req.query.categoryType != undefined) {
       Filterquery.push({ categoryType: req.query.categoryType });
@@ -63,7 +66,12 @@ const getDocuments = asyncHandler(async (req, res) => {
         limit: limit,
       };
     }
-    const data = await Docs.find({ userId: uid })
+
+    const data = await Docs.find({ $and: Filterquery })
+      .populate({
+        path: "projectId",
+        select: ["projectName"],
+      })
       .sort("-_id")
       .skip(startIndex)
       .limit(limit)
