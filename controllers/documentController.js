@@ -6,10 +6,9 @@ const fs = require("fs");
 const uploadDocument = asyncHandler(async (req, res) => {
   try {
     let DocArray = [];
-    console.log(req.files);
     req.files.forEach((e) => {
       const val = {
-        data: fs.readFileSync("uploads/" + e.filename),
+        data: fs.readFileSync("documents/" + e.filename),
         contentType: e.mimetype,
         fileName: e.originalname,
       };
@@ -39,6 +38,18 @@ const getDocuments = asyncHandler(async (req, res) => {
 
     let startIndex = pageNumber * limit;
     const endIndex = (pageNumber + 1) * limit;
+
+    let Filterquery = [];
+
+    if (req.query.userId !== "" && req.query.userId != undefined) {
+      Filterquery.push({ userId: req.query.userId });
+    }
+    if (req.query.projectId !== "" && req.query.projectId != undefined) {
+      Filterquery.push({ projectId: req.query.projectId });
+    }
+    if (req.query.categoryType !== "" && req.query.categoryType != undefined) {
+      Filterquery.push({ categoryType: req.query.categoryType });
+    }
 
     if (startIndex > 0) {
       result.previous = {
