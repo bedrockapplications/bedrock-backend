@@ -5,13 +5,19 @@ const fs = require("fs");
 
 const uploadDocument = asyncHandler(async (req, res) => {
   try {
+    let DocArray = [];
+    console.log(req.files);
+    req.files.forEach((e) => {
+      const val = {
+        data: fs.readFileSync("uploads/" + e.filename),
+        contentType: e.mimetype,
+        fileName: e.originalname,
+      };
+      DocArray.push(val);
+    });
     const docupload = new Docs({
-      fileName: req.file.originalname,
-      contentType: req.file.mimetype,
       status: "In Review",
-      documents: {
-        data: fs.readFileSync("documents/" + req.file.filename),
-      },
+      documents: DocArray,
       userId: req.body.userId,
       projectId: req.body.projectId,
       categoryType: req.body.categoryType,
@@ -28,11 +34,12 @@ const getDocuments = asyncHandler(async (req, res) => {
   try {
     const pageNumber = parseInt(req.query.pageNumber) || 0;
     const limit = parseInt(req.query.limit) || 12;
+    const uid = req.query.userId;
     const result = {};
-    const totalPosts = await Docs.countDocuments().exec();
+
     let startIndex = pageNumber * limit;
     const endIndex = (pageNumber + 1) * limit;
-    result.totalPosts = totalPosts;
+
     if (startIndex > 0) {
       result.previous = {
         pageNumber: pageNumber - 1,
@@ -45,13 +52,31 @@ const getDocuments = asyncHandler(async (req, res) => {
         limit: limit,
       };
     }
-    result.data = await Docs.find()
+    const data = await Docs.find({ userId: uid })
       .sort("-_id")
       .skip(startIndex)
       .limit(limit)
       .exec();
+    //await Docs.countDocuments().exec();
+
+    let dd = [];
+    let st = [];
+    let pt = [];
+    data.forEach((e) => {
+      if (e.categoryType == "DesignDocuments") {
+        dd.push(e);
+      } else if (e.categoryType == "Submittals") {
+        st.push(e);
+      } else if (e.categoryType == "Photos") {
+        pt.push(e);
+      }
+    });
+    result.DesignDocuments = dd;
+    result.Submittals = st;
+    result.Photos = pt;
+    result.totalPosts = data.length;
     result.rowsPerPage = limit;
-    return res.json(result);
+    return res.json({ data: result });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Sorry, something went wrong" });
@@ -133,7 +158,7 @@ const updateDocuments = asyncHandler(async (req, res) => {
 });
 
 const deleteDocumentById = asyncHandler(async (req, res) => {
-  const delDocument= await Docs.findByIdAndDelete(req.params._id);
+  const delDocument = await Docs.findByIdAndDelete(req.params._id);
   res.json(delDocument.fileName + " is Deleted Successfully");
 });
 

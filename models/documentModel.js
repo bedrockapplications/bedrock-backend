@@ -2,13 +2,15 @@ const mongoose = require("mongoose");
 
 const documentSchema = mongoose.Schema(
   {
-    fileName: String,
-    contentType: String,
     status: String,
-    documents: {
-      data: Buffer,
-      _id: false,
-    },
+    documents: [
+      {
+        data: Buffer,
+        fileName: String,
+        contentType: String,
+        _id: false,
+      },
+    ],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
     projectId: { type: mongoose.Schema.Types.ObjectId, ref: "project" },
     categoryType: String,

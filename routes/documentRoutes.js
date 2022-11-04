@@ -50,21 +50,26 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
+const singleupload = multer({
   storage: storage,
   fileFilter: fileFilter,
 }).single("docs");
+
+const multiupload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+}).array("docs");
 
 const meetingupload = multer({
   storage: meetingstorage,
   fileFilter: fileFilter,
 }).single("attachment");
 
-router.post("/uploadDocument", upload, uploadDocument);
+router.post("/uploadDocument", multiupload, uploadDocument);
 router.get("/getDocs", getDocuments);
 router.get("/getDocsByName", getDocsbyName);
 router.get("/getDynamicDocs", getDocsDynamically);
-router.put("/updateDocument/:_id", upload, updateDocuments);
+router.put("/updateDocument/:_id", multiupload, updateDocuments);
 router.delete("/deleteDocument/:_id", deleteDocumentById);
 
 router.post("/createMeeting", meetingupload, createMeeting);
