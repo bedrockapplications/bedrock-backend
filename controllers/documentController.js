@@ -44,6 +44,14 @@ const getDocuments = asyncHandler(async (req, res) => {
 
     let Filterquery = [];
 
+    let dd = [];
+    let st = [];
+    let pt = [];
+    let value = req.query.fileName;
+    let ddLength = 0;
+    let stLength = 0;
+    let ptLength = 0;
+
     if (uid !== "" && uid != undefined) {
       Filterquery.push({ userId: uid });
     }
@@ -60,40 +68,69 @@ const getDocuments = asyncHandler(async (req, res) => {
         limit: limit,
       };
     }
-    if (endIndex < (await Docs.countDocuments().exec())) {
+
+    if (!value || value == undefined) {
+      const data = await Docs.find({ $and: Filterquery })
+        .populate({
+          path: "projectId",
+          select: ["projectName"],
+        })
+        .sort("-_id")
+        .skip(startIndex)
+        .limit(limit)
+        .exec();
+
+      data.forEach((e) => {
+        if (e.categoryType == "DesignDocuments") {
+          dd.push(e);
+          ddLength += e.documents.length;
+        } else if (e.categoryType == "Submittals") {
+          stLength += e.documents.length;
+          st.push(e);
+        } else if (e.categoryType == "Photos") {
+          ptLength += e.documents.length;
+          pt.push(e);
+        }
+      });
+      result.totalPosts = data.length;
+    } else {
+      const data = await Docs.find({
+        $and: [
+          { "documents.fileName": { $regex: new RegExp("^" + value, "i") } },
+          { projectId: pid },
+        ],
+      }).exec();
+
+      data.forEach((e) => {
+        let rsp = e.documents.filter((x) => x.fileName.includes(value));
+        e.documents = rsp;
+        if (e.categoryType == "DesignDocuments") {
+          ddLength += e.documents.length;
+          dd.push(e);
+        } else if (e.categoryType == "Submittals") {
+          stLength += e.documents.length;
+          st.push(e);
+        } else if (e.categoryType == "Photos") {
+          ptLength += e.documents.length;
+          pt.push(e);
+        }
+      });
+      result.totalPosts = data.length;
+    }
+    //await Docs.countDocuments().exec();
+    if (endIndex < result.totalPosts) {
       result.next = {
         pageNumber: pageNumber + 1,
         limit: limit,
       };
     }
 
-    const data = await Docs.find({ $and: Filterquery })
-      .populate({
-        path: "projectId",
-        select: ["projectName"],
-      })
-      .sort("-_id")
-      .skip(startIndex)
-      .limit(limit)
-      .exec();
-    //await Docs.countDocuments().exec();
-
-    let dd = [];
-    let st = [];
-    let pt = [];
-    data.forEach((e) => {
-      if (e.categoryType == "DesignDocuments") {
-        dd.push(e);
-      } else if (e.categoryType == "Submittals") {
-        st.push(e);
-      } else if (e.categoryType == "Photos") {
-        pt.push(e);
-      }
-    });
     result.DesignDocuments = dd;
     result.Submittals = st;
     result.Photos = pt;
-    result.totalPosts = data.length;
+    result.DesignDocumentsCount = ddLength;
+    result.SubmittalsCount = stLength;
+    result.PhotosCount = ptLength;
     result.rowsPerPage = limit;
     return res.json({ data: result });
   } catch (error) {
@@ -105,9 +142,23 @@ const getDocuments = asyncHandler(async (req, res) => {
 const getDocsbyName = asyncHandler(async (req, res) => {
   let value = req.query.fileName;
   const searchnames = await Docs.find({
-    fileName: { $regex: new RegExp("^" + value, "i") },
+    $and: [
+      // { "documents.fileName": { $regex: new RegExp("^" + value, "i") } },
+      {
+        documents: {
+          $elemMatch: { fileName: { $regex: new RegExp("^" + value, "i") } },
+        },
+      },
+      //{ "documents._id": req.query.mediaId },
+      { projectId: pid },
+    ],
   }).exec();
-  res.json(searchnames);
+  let rsp = {};
+  let a = searchnames.map((e) => {
+    //console.log("main obj", e);
+    return e.documents.filter((x) => x.fileName.includes(value));
+  });
+  res.json(a);
 });
 
 const getDocsDynamically = asyncHandler(async (req, res) => {
@@ -135,50 +186,63 @@ const updateDocuments = asyncHandler(async (req, res) => {
   const upobj = {};
   const docid = req.params._id;
   const dbdocument = await Docs.findById(docid);
-  if (
-    dbdocument.fileName != req.file.originalname &&
-    dbdocument.ContentType != req.file.mimetype
-  ) {
-    upobj["fileName"] = req.file.originalname;
-    upobj["contentType"] = req.file.mimetype;
-    upobj["documents.data"] = fs.readFileSync("documents/" + req.file.filename);
+  if (dbdocument.fileName != req.body.fileName) {
+    upobj["documents.$.fileName"] = req.body.fileName;
   }
-  if (dbdocument.userId != req.body.userId && req.body.userId != "") {
+  if (
+    dbdocument.userId != req.body.userId &&
+    req.body.userId != "" &&
+    req.body.userId != undefined
+  ) {
     upobj["userId"] = req.body.userId;
   }
-  //console.log("projectId from db", dbdocument.projectId);
-  //console.log("projectId from req", req.body.projectId);
-  if (dbdocument.projectId != req.body.projectId && req.body.projectId != "") {
+
+  if (
+    dbdocument.projectId != req.body.projectId &&
+    req.body.projectId != "" &&
+    req.body.projectId != undefined
+  ) {
     upobj["projectId"] = req.body.projectId;
   }
   if (
     dbdocument.categoryType != req.body.categoryType &&
-    req.body.categoryType != ""
+    req.body.categoryType != "" &&
+    req.body.categoryType != undefined
   ) {
     upobj["categoryType"] = req.body.categoryType;
   }
-  console.log("updated obj", upobj);
+
   Docs.findOneAndUpdate(
-    { _id: docid },
+    { _id: docid, "documents._id": req.body.mediaId },
     {
       $set: upobj,
     },
     { new: true },
     (err, data) => {
       if (err) {
-        res.send("Error");
+        res.status(400);
+        throw new Error("Error");
       } else {
         if (data != null) {
           res.send(data);
-        } else res.send("Document Not Found");
+        } else res.status(404).send("Document Not Found");
       }
     }
   );
 });
 
 const deleteDocumentById = asyncHandler(async (req, res) => {
-  const delDocument = await Docs.findByIdAndDelete(req.params._id);
-  res.json(delDocument.fileName + " is Deleted Successfully");
+  const dbdata = await Docs.findById({ _id: req.query._id });
+  if (dbdata.documents.length > 1) {
+    const test = await Docs.updateOne(
+      { _id: req.query._id },
+      { $pull: { documents: { _id: req.query.mediaId } } },
+      { multi: true }
+    );
+  } else {
+    const del = await Docs.findByIdAndDelete(req.query._id);
+  }
+  res.json("Deleted Successfully");
 });
 
 const createMeeting = asyncHandler(async (req, res) => {

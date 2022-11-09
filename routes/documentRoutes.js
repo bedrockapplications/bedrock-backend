@@ -69,8 +69,8 @@ router.post("/uploadDocument", multiupload, uploadDocument);
 router.get("/getDocs", getDocuments);
 router.get("/getDocsByName", getDocsbyName);
 router.get("/getDynamicDocs", getDocsDynamically);
-router.put("/updateDocument/:_id", multiupload, updateDocuments);
-router.delete("/deleteDocument/:_id", deleteDocumentById);
+router.put("/updateDocument/:_id", updateDocuments);
+router.delete("/deleteDocument", deleteDocumentById);
 
 router.post("/createMeeting", meetingupload, createMeeting);
 router.get("/getMeetings", getMeetingsbyId);

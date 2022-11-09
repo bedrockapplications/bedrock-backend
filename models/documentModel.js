@@ -8,7 +8,6 @@ const documentSchema = mongoose.Schema(
         data: Buffer,
         fileName: String,
         contentType: String,
-        _id: false,
       },
     ],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
