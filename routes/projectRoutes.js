@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   uploadProject,
   getProjects,
+  updateProject,
   getProjectById,
 } = require("../controllers/projectController");
 
@@ -50,6 +51,7 @@ const {
 // ]);
 
 router.post("/upload", uploadProject);
+router.put("/updateProject/:_id", updateProject);
 router.get("/getprojects", getProjects);
 router.get("/getprojectdetailsbyid", getProjectById);
 module.exports = router;

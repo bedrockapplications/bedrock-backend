@@ -4,8 +4,6 @@ const multer = require("multer");
 const {
   uploadDocument,
   getDocuments,
-  getDocsbyName,
-  getDocsDynamically,
   updateDocuments,
   deleteDocumentById,
   createMeeting,
@@ -67,8 +65,6 @@ const meetingupload = multer({
 
 router.post("/uploadDocument", multiupload, uploadDocument);
 router.get("/getDocs", getDocuments);
-router.get("/getDocsByName", getDocsbyName);
-router.get("/getDynamicDocs", getDocsDynamically);
 router.put("/updateDocument/:_id", updateDocuments);
 router.delete("/deleteDocument", deleteDocumentById);
 
