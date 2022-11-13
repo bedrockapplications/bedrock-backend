@@ -66,7 +66,7 @@ const meetingupload = multer({
 router.post("/uploadDocument", multiupload, uploadDocument);
 router.get("/getDocs", getDocuments);
 router.put("/updateDocument/:_id", updateDocuments);
-router.delete("/deleteDocument", deleteDocumentById);
+router.delete("/deleteDocument/:_id", deleteDocumentById);
 
 router.post("/createMeeting", meetingupload, createMeeting);
 router.get("/getMeetings", getMeetingsbyId);

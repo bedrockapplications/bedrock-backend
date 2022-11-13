@@ -2,29 +2,32 @@ const asyncHandler = require("express-async-handler");
 const Docs = require("../models/documentModel");
 const Meeting = require("../models/meetingModel");
 const fs = require("fs");
-
 const uploadDocument = asyncHandler(async (req, res) => {
   try {
     let DocArray = [];
 
     req.files.forEach((e) => {
-      let ctype = e.originalname.split(".");
-      const val = {
-        data: fs.readFileSync("documents/" + e.filename),
-        contentType: ctype[1],
-        fileName: ctype[0],
+      let ctype = e.originalname.substring(
+        e.originalname.lastIndexOf(".") + 1,
+        e.originalname.length
+      );
+      let fn = e.originalname.substring(0, e.originalname.lastIndexOf("."));
+      let insertData = {
+        status: "In Review",
+        documents: fs.readFileSync("documents/" + e.filename),
+        fileName: fn,
+        contentType: ctype,
+        fileType: e.mimetype,
+        userId: req.body.userId,
+        projectId: req.body.projectId,
+        categoryType: req.body.categoryType,
       };
-      DocArray.push(val);
+
+      DocArray.push(insertData);
     });
-    const docupload = new Docs({
-      status: "In Review",
-      documents: DocArray,
-      userId: req.body.userId,
-      projectId: req.body.projectId,
-      categoryType: req.body.categoryType,
-    });
-    const saveddocument = await docupload.save();
-    res.send(saveddocument);
+
+    await Docs.insertMany(DocArray);
+    res.send("Saved SuccessFully");
   } catch (err) {
     res.status(400);
     throw new Error(err.message);
@@ -34,7 +37,7 @@ const uploadDocument = asyncHandler(async (req, res) => {
 const getDocuments = asyncHandler(async (req, res) => {
   try {
     const pageNumber = parseInt(req.query.pageNumber) || 0;
-    const limit = parseInt(req.query.limit) || 12;
+    const limit = parseInt(req.query.limit) || 10;
     const uid = req.query.userId;
     const pid = req.query.projectId;
     const result = {};
@@ -63,11 +66,11 @@ const getDocuments = asyncHandler(async (req, res) => {
     }
     if (value != "" && value != undefined) {
       Filterquery.push({
-        "documents.fileName": { $regex: new RegExp("^" + value, "i") },
+        fileName: { $regex: new RegExp("^" + value, "i") },
       });
     }
 
-    const data = await Docs.find({ $and: Filterquery }, { "documents.data": 0 })
+    const data = await Docs.find({ $and: Filterquery }, { documents: 0 })
       .populate({
         path: "projectId",
         select: ["projectName"],
@@ -75,33 +78,22 @@ const getDocuments = asyncHandler(async (req, res) => {
       .sort({ updatedAt: -1 });
 
     data.forEach((e) => {
-      if (value) {
-        let rsp = e.documents.filter((x) =>
-          x.fileName.toLowerCase().includes(value.toLowerCase())
-        );
-        e.documents = rsp;
-      }
-      if (e.categoryType == "DesignDocuments") {
-        ddLength += e.documents.length;
-      } else if (e.categoryType == "Submittals") {
-        stLength += e.documents.length;
-      } else if (e.categoryType == "Photos") {
-        ptLength += e.documents.length;
-      }
-    });
-    data.slice(startIndex, endIndex).forEach((e) => {
       if (e.categoryType == "DesignDocuments") {
         dd.push(e);
+        ddLength++;
       } else if (e.categoryType == "Submittals") {
         st.push(e);
+        stLength++;
       } else if (e.categoryType == "Photos") {
         pt.push(e);
+        ptLength++;
       }
     });
 
-    result.DesignDocuments = dd;
-    result.Submittals = st;
-    result.Photos = pt;
+    result.DesignDocuments =
+      dd.length > 0 ? dd.slice(startIndex, endIndex) : dd;
+    result.Submittals = st.length > 0 ? st.slice(startIndex, endIndex) : st;
+    result.Photos = pt.length > 0 ? pt.slice(startIndex, endIndex) : pt;
     result.DesignDocumentsCount = ddLength;
     result.SubmittalsCount = stLength;
     result.PhotosCount = ptLength;
@@ -114,66 +106,71 @@ const getDocuments = asyncHandler(async (req, res) => {
 });
 
 const updateDocuments = asyncHandler(async (req, res) => {
-  const upobj = {};
-  const docid = req.params._id;
-  const dbdocument = await Docs.findById(docid);
-  if (dbdocument.fileName != req.body.fileName) {
-    upobj["documents.$.fileName"] = req.body.fileName;
-  }
-  if (
-    dbdocument.userId != req.body.userId &&
-    req.body.userId != "" &&
-    req.body.userId != undefined
-  ) {
-    upobj["userId"] = req.body.userId;
-  }
-
-  if (
-    dbdocument.projectId != req.body.projectId &&
-    req.body.projectId != "" &&
-    req.body.projectId != undefined
-  ) {
-    upobj["projectId"] = req.body.projectId;
-  }
-  if (
-    dbdocument.categoryType != req.body.categoryType &&
-    req.body.categoryType != "" &&
-    req.body.categoryType != undefined
-  ) {
-    upobj["categoryType"] = req.body.categoryType;
-  }
-
-  Docs.findOneAndUpdate(
-    { _id: docid, "documents._id": req.body.mediaId },
-    {
-      $set: upobj,
-    },
-    { new: true },
-    (err, data) => {
-      if (err) {
-        res.status(400);
-        throw new Error("Error");
-      } else {
-        if (data != null) {
-          res.send(data);
-        } else res.status(404).send("Document Not Found");
-      }
+  try {
+    const upobj = {};
+    const docid = req.params._id;
+    const dbdocument = await Docs.findById(docid);
+    //console.log(dbdocument);
+    console.log(req.body.categoryType);
+    if (
+      dbdocument.fileName != req.body.fileName &&
+      req.body.fileName != "" &&
+      req.body.fileName != undefined
+    ) {
+      upobj["fileName"] = req.body.fileName;
     }
-  );
+    if (
+      dbdocument.userId != req.body.userId &&
+      req.body.userId != "" &&
+      req.body.userId != undefined
+    ) {
+      upobj["userId"] = req.body.userId;
+    }
+
+    if (
+      dbdocument.projectId != req.body.projectId &&
+      req.body.projectId != "" &&
+      req.body.projectId != undefined
+    ) {
+      upobj["projectId"] = req.body.projectId;
+    }
+    if (
+      dbdocument.categoryType != req.body.categoryType &&
+      req.body.categoryType != "" &&
+      req.body.categoryType != undefined
+    ) {
+      upobj["categoryType"] = req.body.categoryType;
+    }
+    Docs.findOneAndUpdate(
+      { _id: docid },
+      {
+        $set: upobj,
+      },
+      { new: true },
+      (err, data) => {
+        if (err) {
+          res.status(400);
+          throw new Error("Error");
+        } else {
+          if (data != null) {
+            res.send(data);
+          } else res.status(404).send("Document Not Found");
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ msg: "Sorry, something went wrong" });
+  }
 });
 
 const deleteDocumentById = asyncHandler(async (req, res) => {
-  const dbdata = await Docs.findById({ _id: req.query._id });
-  if (dbdata.documents.length > 1) {
-    const test = await Docs.updateOne(
-      { _id: req.query._id },
-      { $pull: { documents: { _id: req.query.mediaId } } },
-      { multi: true }
-    );
-  } else {
-    const del = await Docs.findByIdAndDelete(req.query._id);
+  try {
+    const del = await Docs.findByIdAndDelete(req.params._id);
+    res.json("Deleted Successfully");
+  } catch (error) {
+    return res.status(400).json({ msg: "Sorry, something went wrong" });
   }
-  res.json("Deleted Successfully");
 });
 
 const createMeeting = asyncHandler(async (req, res) => {
