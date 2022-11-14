@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { 
+const {
   saveUser,
   updateUser,
   getUserbyEmail,
@@ -11,7 +11,7 @@ const {
 } = require("../controllers/userController");
 
 router.post("/save", saveUser);
-router.put("/update/:email", updateUser);
+router.put("/update/:_id", updateUser);
 router.put("/resetpassword", updatePassword);
 router.get("/finduser", getUserbyEmail);
 router.get("/details", getUserDetails);

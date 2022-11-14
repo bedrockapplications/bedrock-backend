@@ -38,7 +38,7 @@ const getUserbyEmail = asyncHandler(async (req, res) => {
 });
 
 const getUserDetails = asyncHandler(async (req, res) => {
-  const exists = await User.findOne({ email: req.query.email });
+  const exists = await User.findOne({ _id: req.query._id });
   if (exists) {
     res.status(200).send(exists);
   } else {
@@ -66,8 +66,6 @@ const SecurityCheck = asyncHandler(async (req, res) => {
   }
 });
 const updateUser = asyncHandler(async (req, res) => {
-  console.log("inside update method");
-
   const salt = await bcrypt.genSalt(10);
   const hp = await bcrypt.hash(req.body.password, salt);
   const email = req.body.email,
@@ -75,13 +73,13 @@ const updateUser = asyncHandler(async (req, res) => {
     lname = req.body.lastName,
     password = hp,
     phone = req.body.phoneNumber,
-    role = "owner",
+    role = "",
     securityQuestions = req.body.securityQuestions,
     companyInformation = req.body.companyInformation,
     billingInformation = req.body.billingInformation; //id = req.params._id,
 
   User.findOneAndUpdate(
-    { email: email },
+    { _id: req.params._id },
     {
       $set: {
         email: email,
