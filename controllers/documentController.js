@@ -110,8 +110,6 @@ const updateDocuments = asyncHandler(async (req, res) => {
     const upobj = {};
     const docid = req.params._id;
     const dbdocument = await Docs.findById(docid);
-    //console.log(dbdocument);
-    console.log(req.body.categoryType);
     if (
       dbdocument.fileName != req.body.fileName &&
       req.body.fileName != "" &&
@@ -173,6 +171,36 @@ const deleteDocumentById = asyncHandler(async (req, res) => {
   }
 });
 
+const getFileNameList = asyncHandler(async (req, res) => {
+  try {
+    const uid = req.query.userId;
+    const pid = req.query.projectId;
+    const ctype = req.query.categoryType;
+    let Filterquery = [];
+    if (uid !== "" && uid != undefined) {
+      Filterquery.push({ userId: uid });
+    }
+    if (ctype !== "" && ctype != undefined) {
+      Filterquery.push({ categoryType: ctype });
+    }
+    if (pid !== "" && pid != undefined) {
+      Filterquery.push({ projectId: pid });
+    }
+
+    const fileList = await Docs.find(
+      { $and: Filterquery },
+      { fileName: 1, _id: 0 }
+    );
+    let fList = [];
+    fileList.forEach((e) => {
+      fList.push(e.fileName);
+    });
+    res.send(fList);
+  } catch (error) {
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
+  }
+});
+
 const createMeeting = asyncHandler(async (req, res) => {
   try {
     const meeting = new Meeting({
@@ -214,6 +242,7 @@ module.exports = {
   uploadDocument,
   getDocuments,
   updateDocuments,
+  getFileNameList,
   deleteDocumentById,
   createMeeting,
   getMeetingsbyId,
