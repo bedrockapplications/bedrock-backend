@@ -13,7 +13,8 @@ const saveUser = asyncHandler(async (req, res) => {
     email: req.body.email,
     password: hp,
     phoneNumber: req.body.phoneNumber,
-    role: "",
+    role: "Owner",
+    ownerId: null,
     securityQuestions: req.body.securityQuestions,
     companyInformation: req.body.companyInformation,
     billingInformation: req.body.billingInformation,
@@ -34,6 +35,45 @@ const getUserbyEmail = asyncHandler(async (req, res) => {
     throw new Error("Email Already Exists,Please signin with another email");
   } else {
     res.status(200).send({ success: "done" });
+  }
+});
+
+const saveContractors = asyncHandler(async (req, res) => {
+  const salt = await bcrypt.genSalt(10);
+  const hp = await bcrypt.hash(req.body.password, salt);
+  const data = new User({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: hp,
+    phoneNumber: req.body.phoneNumber,
+    role: "Contractor",
+    ownerId: req.body.ownerId,
+  });
+
+  try {
+    const saveduser = await data.save();
+    res.json(saveduser);
+  } catch {
+    throw new Error("User is not created");
+  }
+});
+
+const getRoleBasedUserDetails = asyncHandler(async (req, res) => {
+  let exists = [];
+  try {
+    if (req.query.role.includes("Owner")) {
+      exists = await User.findOne({ _id: req.query.ownerId });
+    } else {
+      exists = await User.find({ ownerId: req.query.ownerId });
+    }
+    if (exists) {
+      res.status(200).send(exists);
+    }
+  } catch (error) {
+    if (req.query.role.includes("Owner"))
+      throw new Error("User Does not Exist");
+    else throw new Error("Contractors Does not Exist");
   }
 });
 
@@ -154,6 +194,8 @@ module.exports = {
   updateUser,
   getUserbyEmail,
   getUserDetails,
+  saveContractors,
+  getRoleBasedUserDetails,
   loginUser,
   updatePassword,
   SecurityCheck,

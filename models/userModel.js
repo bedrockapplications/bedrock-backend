@@ -57,6 +57,7 @@ const userScheme = mongoose.Schema(
       required: [true, "please add a Phone Number"],
     },
     role: String,
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
     securityQuestions: secQuesSchema,
     companyInformation: companySchema,
     billingInformation: billingSchema,

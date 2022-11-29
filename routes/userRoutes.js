@@ -3,6 +3,8 @@ const router = express.Router();
 const {
   saveUser,
   updateUser,
+  saveContractors,
+  getRoleBasedUserDetails,
   getUserbyEmail,
   loginUser,
   getUserDetails,
@@ -12,6 +14,8 @@ const {
 
 router.post("/save", saveUser);
 router.put("/update/:_id", updateUser);
+router.post("/saveContractors", saveContractors);
+router.get("/findrolebasedusers", getRoleBasedUserDetails);
 router.put("/resetpassword", updatePassword);
 router.get("/finduser", getUserbyEmail);
 router.get("/details", getUserDetails);
