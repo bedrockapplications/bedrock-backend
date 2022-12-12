@@ -2,34 +2,65 @@ const asyncHandler = require("express-async-handler");
 const Docs = require("../models/documentModel");
 const Meeting = require("../models/meetingModel");
 const fs = require("fs");
+const multer = require("multer");
+const aws = require("aws-sdk");
+const multerS3 = require("multer-s3");
+const s3 = new aws.S3({
+  accessKeyId: process.env.S3_ACCESS_KEY,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.S3_BUCKET_REGION,
+});
+
+const upload = (bucketName) =>
+  multer({
+    storage: multerS3({
+      s3,
+      bucket: bucketName,
+      metadata: function (req, file, cb) {
+        cb(null, { fieldName: file.fieldname });
+      },
+      key: function (req, file, cb) {
+        cb(null, file.originalname);
+      },
+    }),
+  });
+
 const uploadDocument = asyncHandler(async (req, res) => {
   try {
     let DocArray = [];
 
-    req.files.forEach((e) => {
-      let ctype = e.originalname.substring(
-        e.originalname.lastIndexOf(".") + 1,
-        e.originalname.length
-      );
-      let fn = e.originalname.substring(0, e.originalname.lastIndexOf("."));
-      let insertData = {
-        status: "In Review",
-        documents: fs.readFileSync("documents/" + e.filename),
-        fileName: fn,
-        contentType: ctype,
-        fileType: e.mimetype,
-        userId: req.body.userId,
-        projectId: req.body.projectId,
-        categoryType: req.body.categoryType,
-      };
+    const uploadSingle = upload("bedrockapp-media").array("docs");
 
-      DocArray.push(insertData);
+    uploadSingle(req, res, async (err) => {
+      if (err)
+        return res.status(400).json({ success: false, message: err.message });
+
+      req.files.forEach((e) => {
+        let ctype = e.originalname.substring(
+          e.originalname.lastIndexOf(".") + 1,
+          e.originalname.length
+        );
+        let fn = e.originalname.substring(0, e.originalname.lastIndexOf("."));
+
+        let insertData = {
+          status: "In Review",
+          fileName: fn,
+          contentType: ctype,
+          fileType: e.mimetype,
+          userId: req.body.userId,
+          projectId: req.body.projectId,
+          filePath: e.location,
+          categoryType: req.body.categoryType,
+        };
+
+        DocArray.push(insertData);
+      });
+
+      await Docs.insertMany(DocArray);
+      res.send("Saved SuccessFully");
     });
-
-    await Docs.insertMany(DocArray);
-    res.send("Saved SuccessFully");
   } catch (err) {
-    res.status(400);
+    res.status(400).json({ success: false, message: err.message });
     throw new Error(err.message);
   }
 });
