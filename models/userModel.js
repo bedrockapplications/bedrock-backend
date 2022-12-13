@@ -9,6 +9,12 @@ const companySchema = mongoose.Schema(
       city: String,
       state: String,
       zipcode: String,
+      country: String,
+    },
+    emergencyContact: {
+      fullName: String,
+      contactNum: Number,
+      relationship: String,
     },
   },
   { _id: false }
@@ -22,6 +28,12 @@ const billingSchema = mongoose.Schema(
       city: String,
       state: String,
       zipcode: String,
+      country: String,
+    },
+    BillingContact: {
+      fullName: String,
+      contactNum: Number,
+      billEmail: String,
     },
   },
   { _id: false }

@@ -105,6 +105,19 @@ const SecurityCheck = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 });
+
+const passwordCheck = asyncHandler(async (req, res) => {
+  const userexists = await User.findOne({ _id: req.query._id });
+  const pass = req.query.password;
+  if (userexists && (await bcrypt.compare(pass, userexists.password))) {
+    res.send("Success");
+  } else {
+    res.status(400);
+    throw new Error(
+      "The password you entered is incorrect, please enter correct password"
+    );
+  }
+});
 const updateUser = asyncHandler(async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hp = await bcrypt.hash(req.body.password, salt);
@@ -113,7 +126,7 @@ const updateUser = asyncHandler(async (req, res) => {
     lname = req.body.lastName,
     password = hp,
     phone = req.body.phoneNumber,
-    role = "",
+    role = req.body.role,
     securityQuestions = req.body.securityQuestions,
     companyInformation = req.body.companyInformation,
     billingInformation = req.body.billingInformation; //id = req.params._id,
@@ -136,11 +149,11 @@ const updateUser = asyncHandler(async (req, res) => {
     { new: true },
     (err, data) => {
       if (err) {
-        res.send("Error");
+        res.status(400).send("Error");
       } else {
         if (data != null) {
           res.send(data);
-        } else res.send("Email Not Found");
+        } else res.status(400).send("Email Not Found");
       }
     }
   );
@@ -180,7 +193,7 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    res.status(201).json(user);
+    res.status(200).json(user);
   } else {
     res.status(400);
     throw new Error(
@@ -199,4 +212,5 @@ module.exports = {
   loginUser,
   updatePassword,
   SecurityCheck,
+  passwordCheck,
 };
