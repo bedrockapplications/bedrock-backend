@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket IO Chat App</title>
+    <!-- <link rel="stylesheet" href="./index.css" /> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header id="header">
+      <p id="notification">Hello</p>
+    </header>
+    <form class="container">
+      <h2>Send Messages with Socket.io</h2>
+      <textarea
+        rows="5"
+        width="100%"
+        name="message"
+        id="message"
+        placeholder="Enter your message..."
+      ></textarea>
+      <button id="button">SEND MESSAGE</button>
+      <button id="buttonnew">SEND MESSAGE NEW</button>
+    </form>
+    <script src="socket.io.js"></script>
+    <script>
+      // console.log("io", io);
+      var socket = io();
+      console.log(socket);
+      var notify = document.querySelector("#notification");
+      var message = document.querySelector("#message");
+      var button = document.getElementById("button");
+      var buttonnnew = document.getElementById("buttonnew");
+      var header = document.querySelector("#header");
+
+      function printMessage(e) {
+        e.preventDefault();
+        socket.emit("message", message.value);
+      }
+
+      function printMessageNew(e) {
+        e.preventDefault();
+        socket.emit("newdata", "this is new message");
+      }
+      socket.on("response", (data) => {
+        console.log("response to frontend", data);
+        notify.textContent = data;
+        header.style.backgroundColor = "#3F4E4F";
+        header.style.height = "20vh";
+      });
+
+      button.addEventListener("click", printMessage);
+      buttonnnew.addEventListener("click", printMessageNew);
+    </script>
+
+    <!-- <script src="static/script.js"></script> -->
+  </body>
+</html>
