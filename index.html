@@ -34,6 +34,15 @@
       // console.log("io", io);
       var socket = io();
       console.log(socket);
+      socket.on("connect", () => {
+  console.log("connetedclient",socket.id); 
+  
+});
+  socket.emit('getUser',"62a496a33d1e6cb6f54efa53");
+      // socket.on("socketId",(data)=>{
+      //   console.log("socketid is"+data)
+      //   socket.emit('getUser',"62a496a33d1e6cb6f54efa53");
+      // })
       var notify = document.querySelector("#notification");
       var message = document.querySelector("#message");
       var button = document.getElementById("button");
@@ -49,11 +58,11 @@
         e.preventDefault();
         socket.emit("newdata", "this is new message");
       }
+     
+     
       socket.on("response", (data) => {
         console.log("response to frontend", data);
-        notify.textContent = data;
-        header.style.backgroundColor = "#3F4E4F";
-        header.style.height = "20vh";
+        
       });
 
       button.addEventListener("click", printMessage);

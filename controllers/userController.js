@@ -24,6 +24,7 @@ const saveUser = asyncHandler(async (req, res) => {
     const saveduser = await data.save();
     res.json(saveduser);
   } catch {
+    res.status(401);
     throw new Error("Duplicate Email, please enter a different email");
   }
 });
@@ -55,6 +56,7 @@ const saveContractors = asyncHandler(async (req, res) => {
     const saveduser = await data.save();
     res.json(saveduser);
   } catch {
+    res.status(404);
     throw new Error("User is not created");
   }
 });
@@ -71,9 +73,15 @@ const getRoleBasedUserDetails = asyncHandler(async (req, res) => {
       res.status(200).send(exists);
     }
   } catch (error) {
-    if (req.query.role.includes("Owner"))
+    if (req.query.role.includes("Owner")){
+      res.status(404);
       throw new Error("User Does not Exist");
-    else throw new Error("Contractors Does not Exist");
+    }
+      
+    else{
+      res.status(404);
+      throw new Error("Contractors Does not Exist");
+    } 
   }
 });
 
@@ -82,6 +90,7 @@ const getUserDetails = asyncHandler(async (req, res) => {
   if (exists) {
     res.status(200).send(exists);
   } else {
+    res.status(404);
     throw new Error("User Does not Exist");
   }
 });
@@ -102,6 +111,7 @@ const SecurityCheck = asyncHandler(async (req, res) => {
       throw new Error("Invalid Security Answers");
     }
   } else {
+    res.status(404);
     throw new Error("User not found");
   }
 });
@@ -174,6 +184,7 @@ const updatePassword = asyncHandler(async (req, res) => {
     { new: true },
     (err, data) => {
       if (err) {
+        res.status(400);
         throw new Error("Error");
       } else {
         if (data != null) {
