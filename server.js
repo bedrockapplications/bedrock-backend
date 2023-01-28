@@ -26,6 +26,7 @@ app.use(errorHandler);
 app.use("/api/user", require("./routes/userRoutes.js"));
 app.use("/api/project", require("./routes/projectRoutes.js"));
 app.use("/api/document", require("./routes/documentRoutes.js"));
+app.use("/api/chats", require("./routes/chatRoutes.js"));
 
 
 
@@ -40,7 +41,7 @@ http.listen(3000, () => {
 });
 
 socketIO.on("connection", function (socket) {
- 
+  console.log("server",socket.id);
     socket.on("getUser",data=>{
 
       setInterval(async() => {
@@ -48,10 +49,10 @@ socketIO.on("connection", function (socket) {
         var event = new Date();
         var dt = new Date(event.getTime() - event.getTimezoneOffset() * 60000)
         .toISOString()
-        .substring(0, 10);
+        .substring(0, 10);  
        
-       var respArray=[];
-        var rep=await axios.get("https://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data+"&startDate="+dt)
+       var respArray=[]; //http://localhost:3000/api/document/getMeetings?userId=62a496a33d1e6cb6f54efa53&startDate=2023-01-19
+        var rep=await axios.get("http://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data+"&startDate="+dt)
      
         .then(res =>{ 
            let datas=res.data;
@@ -69,7 +70,7 @@ socketIO.on("connection", function (socket) {
          })
          .catch(err => console.log(err));
        
-      }, 60000);
+      }, 6000);
     })
   
 
