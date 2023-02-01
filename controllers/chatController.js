@@ -56,7 +56,7 @@ const SaveChat = asyncHandler(async (req, res) => {
   const getKey = asyncHandler(async (req, res) => {
 
     const ExistingKey=await chatapi.find();
-    console.log(ExistingKey);
+    
        if (ExistingKey) {
            res.status(200).send(ExistingKey);
        } else {
