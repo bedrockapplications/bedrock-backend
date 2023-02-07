@@ -80,9 +80,6 @@ const createDailyLog = asyncHandler(async (req, res) => {
             throw new Error("Bad Request");
           }
     });
-
-
-  
 });
 
 const upload = (bucketName) =>
