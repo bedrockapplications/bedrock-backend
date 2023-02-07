@@ -49,7 +49,7 @@ http.listen(3000, () => {
 socketIO.on("connection", function (socket) {
   console.log("server",socket.id);
     socket.on("getUser",data=>{
-
+      console.log(data);
       setInterval(async() => {
     
         var event = new Date();
@@ -57,7 +57,7 @@ socketIO.on("connection", function (socket) {
         .toISOString()
         .substring(0, 10);  
        console.log(dt);
-       var respArray=[]; //http://localhost:3000/api/document/getMeetings?userId=62a496a33d1e6cb6f54efa53&startDate=2023-01-19
+       var respArray=[{msg:"Hii"}]; //http://localhost:3000/api/document/getMeetings?userId=62a496a33d1e6cb6f54efa53&startDate=2023-01-19
         var rep=await axios.get("https://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data+"&startDate="+dt)
      
         .then(res =>{ 
