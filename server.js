@@ -27,6 +27,7 @@ app.use("/api/user", require("./routes/userRoutes.js"));
 app.use("/api/project", require("./routes/projectRoutes.js"));
 app.use("/api/document", require("./routes/documentRoutes.js"));
 app.use("/api/chats", require("./routes/chatRoutes.js"));
+app.use("/api/dailyLog", require("./routes/dailyLogRoutes"));
 
 
 
