@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Chat= require("../models/chatModel");
 const Message=require("../models/messageModel");
+const chatapi=require("../models/chatapiModel");
 const SaveChat = asyncHandler(async (req, res) => {
     console.log("inside save method");
   
@@ -52,4 +53,17 @@ const SaveChat = asyncHandler(async (req, res) => {
     }
   });
 
-  module.exports={SaveChat,getChatsbyId}
+  const getKey = asyncHandler(async (req, res) => {
+
+    const ExistingKey=await chatapi.find();
+    
+       if (ExistingKey) {
+           res.status(200).send(ExistingKey);
+       } else {
+           res.status(400);
+         throw new Error("Bad request");
+        
+       }
+     });
+
+  module.exports={SaveChat,getChatsbyId,getKey}
