@@ -10,7 +10,12 @@ const http = require("http").createServer(app);
 const axios = require('axios');
 const mongoose = require("mongoose");
 const port = process.env.PORT || 3000;
-const socketIO = require("socket.io")(http);
+const socketIO = require("socket.io")(http,{
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 const { errorHandler } = require("./middleware/middleware");
 
 app.use(express.json());
@@ -50,12 +55,14 @@ socketIO.on("connection", function (socket) {
         var dt = new Date(event.getTime() - event.getTimezoneOffset() * 60000)
         .toISOString()
         .substring(0, 10);  
-       
+       console.log(dt);
        var respArray=[]; //http://localhost:3000/api/document/getMeetings?userId=62a496a33d1e6cb6f54efa53&startDate=2023-01-19
-        var rep=await axios.get("http://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data+"&startDate="+dt)
+        var rep=await axios.get("https://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data+"&startDate="+dt)
      
         .then(res =>{ 
+         
            let datas=res.data;
+          
            datas.forEach(element => {
              const date = new Date();
              const result1 = moment(date).add(15, 'minutes').format("HH:mm");
