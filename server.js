@@ -27,18 +27,22 @@ app.use(
     origin: "*",
   })
 );
-app.use(errorHandler);
+
 app.use("/api/user", require("./routes/userRoutes.js"));
 app.use("/api/project", require("./routes/projectRoutes.js"));
 app.use("/api/document", require("./routes/documentRoutes.js"));
 app.use("/api/chats", require("./routes/chatRoutes.js"));
 app.use("/api/dailyLog", require("./routes/dailyLogRoutes"));
+app.use("/api/external",require("./routes/kreoRoutes"));
+app.use(errorHandler);
+
 
 
 
 app.get("/", function (req, res) {
   res.sendFile(__dirname + "/index.html");
 });
+
 
 
 
