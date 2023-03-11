@@ -19,7 +19,25 @@ const uploadFileToKreo = asyncHandler(async (req, res) =>  {
             Cookie: "kreo_auth_access_token=" + req.body.kreo_auth_access_token
           }
         }).then((pt)=>{
-          res.json(pt.data);
+          var interval = setInterval(async()=>{
+            await axios.get('https://takeoff.kreo.net/api/auto-measure/v1/company/35484/projects/'+pt.data.projectId+ '/status',{
+             headers: {
+             Cookie: "kreo_auth_access_token=" + req.body.kreo_auth_access_token
+           }
+         })
+            .then(async(sts)=>
+            { 
+   
+             if(sts.data.status=="Ready")
+               {
+                 res.json(sts.data);
+                 clearInterval(interval);
+               }
+               
+           }
+            );
+         }, 5000);
+         
         });
   });
     
@@ -51,33 +69,8 @@ const uploadFileToKreo = asyncHandler(async (req, res) =>  {
     
     try{
 
-      try {
-        let succ=await axios.get('https://takeoff.kreo.net/api/auto-measure/v1/company/35484/projects/'+req.query.projectId+ '/status',{
-          headers: {
-          Cookie: "kreo_auth_access_token=" + req.query.kreo_auth_access_token
-        }
-      });
-      } catch (error) {
-        res.status(error.response.status);
-        throw new Error(error.message);
-      }
-      
-
-      
-      
-      var interval = setInterval(async()=>{
-         await axios.get('https://takeoff.kreo.net/api/auto-measure/v1/company/35484/projects/'+req.query.projectId+ '/status',{
-          headers: {
-          Cookie: "kreo_auth_access_token=" + req.query.kreo_auth_access_token
-        }
-      })
-         .then(async(sts)=>
-         { 
-
-          if(sts.data.status=="Ready")
-            {
-              
-               let resp = await axios.get('https://takeoff.kreo.net/api/auto-measure/v1/company/35484/projects/'+req.query.projectId+'/data?pageIndex='+req.query.pageIndex+'&withPolylines=true',{
+     
+      let resp = await axios.get('https://takeoff.kreo.net/api/auto-measure/v1/company/35484/projects/'+req.query.projectId+'/data?pageIndex='+req.query.pageIndex+'&withPolylines=true',{
                 headers: {
                   Cookie: "kreo_auth_access_token=" + req.query.kreo_auth_access_token
                 }
@@ -85,13 +78,8 @@ const uploadFileToKreo = asyncHandler(async (req, res) =>  {
                .then(finalres=>{
 
                  res.json(finalres.data);
-                clearInterval(interval);
                });
-            }
-            
-        }
-         );
-      }, 20000);
+      
       
       
     }
