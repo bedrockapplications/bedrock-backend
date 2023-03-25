@@ -15,6 +15,7 @@ const meetingSchema = mongoose.Schema(
       _id: false,
     },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "userinfo" },
+    isRead:Boolean
   },
   {
     timestamps: true,

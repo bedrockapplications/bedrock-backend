@@ -248,6 +248,7 @@ const createMeeting = asyncHandler(async (req, res) => {
       },
       partiesInvolved: req.body.partiesInvolved,
       userId: req.body.userId,
+      isRead:false
     });
     const savedmeeting = await meeting.save();
     res.send(savedmeeting);
@@ -257,13 +258,55 @@ const createMeeting = asyncHandler(async (req, res) => {
   }
 });
 
-const getMeetingsbyId = asyncHandler(async (req, res) => {
-  const date = req.query.startDate.toString();
+// const getMeetingsbyId = asyncHandler(async (req, res) => {
+//   const date = req.query.startDate.toString();
+//   const userMeeting = await Meeting.find({
+//     $and: [{ userId: req.query.userId }, { startDate: date }],
+//   });
+//   res.json(userMeeting);
+// });
+
+const getMeetingsbyRead = asyncHandler(async (req, res) => {
+  var d = new Date(req.query.startDate);
+  var yeterdaydt=new Date(d.setDate(d.getDate() - 1)).toISOString() .substring(0, 10);
+  var todaydate = req.query.startDate.toString();
+
+ 
   const userMeeting = await Meeting.find({
-    $and: [{ userId: req.query.userId }, { startDate: date }],
+    $and: [{ userId: req.query.userId }, { isRead:false },{startDate:{$gte: yeterdaydt, $lte: todaydate}}],
   });
   res.json(userMeeting);
 });
+
+const updateRead = asyncHandler(async (req, res) => {
+
+  
+  Meeting.findOneAndUpdate(
+    { _id: req.params._id },
+    
+    {
+      $set: {
+        isRead: true,
+      },
+    },
+    { new: true },
+    (err, data) => {
+      if (err) {
+        res.status(400);
+         throw new Error("Error");
+      } else {
+        if (data != null) {
+          res.send({ success: "Changed to Read Successfully" });
+        } else {
+          res.status(500);
+          res.send({ message: "Meeting Not Found " });
+          //throw new Error("Email Not Found ");
+        }
+      }
+    }
+  );
+});
+
 
 const deleteMeetingbyId = asyncHandler(async (req, res) => {
   const delMeeting = await Meeting.findByIdAndDelete(req.params._id);
@@ -278,5 +321,7 @@ module.exports = {
   deleteDocumentById,
   createMeeting,
   getMeetingsbyId,
+  getMeetingsbyRead,
+  updateRead,
   deleteMeetingbyId,
 };

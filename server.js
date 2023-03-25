@@ -65,19 +65,20 @@ socketIO.on("connection", function (socket) {
         var rep=await axios.get("https://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data.id+"&startDate="+dt)
      
         .then(res =>{ 
-         
            let datas=res.data;
-          
-           datas.forEach(element => {
-             let date = new Date(new Date().toLocaleString('en-US', { timeZone: data.tz }));
-             let result1 = moment(date).add(15, 'minutes').format("HH:mm");
-             if(element.startTime===result1.toString()){
-               respArray.push(element);
-             }
-             
-           });
-           
-            socket.emit("response",respArray);
+           if(datas.length>0){
+              let yetsdate=datas.filter(e=>{!Date.parse(e.startDate)>Date.parse(dt.toString())});
+              respArray.push(yetsdate);
+              datas.filter(dts=>!yetsdate.includes(dts)).map(element=>{
+                let date = new Date(new Date().toLocaleString('en-US', { timeZone: data.tz }));
+                let result1 = moment(date).add(15, 'minutes').format("HH:mm");
+                if(element.startTime===result1.toString()){
+                  respArray.push(element);
+                }
+          });
+        }
+
+            socket.emit("response",respArray.length);
          
          })
          .catch(err => console.log(err));

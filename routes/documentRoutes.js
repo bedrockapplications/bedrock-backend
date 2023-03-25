@@ -11,6 +11,8 @@ const {
   createMeeting,
   getMeetingsbyId,
   deleteMeetingbyId,
+  getMeetingsbyRead,
+  updateRead,
 } = require("../controllers/documentController");
 
 const storage = multer.diskStorage({
@@ -72,6 +74,7 @@ router.put("/updateDocument/:_id", updateDocuments);
 router.delete("/deleteDocument/:_id", deleteDocumentById);
 
 router.post("/createMeeting", meetingupload, createMeeting);
-router.get("/getMeetings", getMeetingsbyId);
+router.get("/getMeetings", getMeetingsbyRead);
+router.put("/updateRead/:_id", updateRead);
 router.delete("/deletemeeting/:_id", deleteMeetingbyId);
 module.exports = router;
