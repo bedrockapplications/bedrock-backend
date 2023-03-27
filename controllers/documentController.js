@@ -320,7 +320,7 @@ module.exports = {
   getFileNameList,
   deleteDocumentById,
   createMeeting,
-  getMeetingsbyId,
+  //getMeetingsbyId,
   getMeetingsbyRead,
   updateRead,
   deleteMeetingbyId,
