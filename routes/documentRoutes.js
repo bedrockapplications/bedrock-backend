@@ -9,7 +9,7 @@ const {
   getFileNameList,
   deleteDocumentById,
   createMeeting,
-  getMeetingsbyId,
+ // getMeetingsbyId,
   deleteMeetingbyId,
   getMeetingsbyRead,
   updateRead,
