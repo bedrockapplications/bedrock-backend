@@ -62,15 +62,15 @@ socketIO.on("connection", function (socket) {
         .substring(0, 10);  
        
        var respArray=[]; //http://localhost:3000/api/document/getMeetings?userId=62a496a33d1e6cb6f54efa53&startDate=2023-01-19
-        var rep=await axios.get("https://nodejs-apis.bedrockapps.link/api/document/getMeetings?userId="+data.id+"&startDate="+dt)
+        var rep=await axios.get("https://nodejs-apis.bedrockapps.link/api/document/getMeetingRead?userId="+data.id+"&startDate="+dt)
      
         .then(res =>{ 
            let datas=res.data;
            if(datas.length>0){
-              let yetsdate=datas.filter(e=>{!Date.parse(e.startDate)>Date.parse(dt.toString())});
+              let yetsdate=datas.filter(e=>!(Date.parse(e.startDate)>=Date.parse(dt.toString())));
               respArray.push(yetsdate);
               datas.filter(dts=>!yetsdate.includes(dts)).map(element=>{
-                let date = new Date(new Date().toLocaleString('en-US', { timeZone: data.tz }));
+                let date =new Date(new Date().toLocaleString('en-US', { timeZone: data.tz }));
                 let result1 = moment(date).add(15, 'minutes').format("HH:mm");
                 if(element.startTime===result1.toString()){
                   respArray.push(element);
@@ -83,7 +83,7 @@ socketIO.on("connection", function (socket) {
          })
          .catch(err => console.log(err));
        
-      }, 60000);
+      }, 6000);
     })
   
 

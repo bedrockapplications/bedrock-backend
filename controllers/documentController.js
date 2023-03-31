@@ -5,6 +5,7 @@ const fs = require("fs");
 const multer = require("multer");
 const aws = require("aws-sdk");
 const multerS3 = require("multer-s3");
+const moment = require('moment');
 const s3 = new aws.S3({
   accessKeyId: process.env.S3_ACCESS_KEY,
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
@@ -258,13 +259,13 @@ const createMeeting = asyncHandler(async (req, res) => {
   }
 });
 
-// const getMeetingsbyId = asyncHandler(async (req, res) => {
-//   const date = req.query.startDate.toString();
-//   const userMeeting = await Meeting.find({
-//     $and: [{ userId: req.query.userId }, { startDate: date }],
-//   });
-//   res.json(userMeeting);
-// });
+const getMeetingsbyId = asyncHandler(async (req, res) => {
+  const date = req.query.startDate.toString();
+  const userMeeting = await Meeting.find({
+    $and: [{ userId: req.query.userId }, { startDate: date }],
+  });
+  res.json(userMeeting);
+});
 
 const getMeetingsbyRead = asyncHandler(async (req, res) => {
   var d = new Date(req.query.startDate);
@@ -313,6 +314,40 @@ const deleteMeetingbyId = asyncHandler(async (req, res) => {
   res.json(delMeeting.title + " Deleted Successfully");
 });
 
+const getListOfMeetings = asyncHandler(async (req, res) => {
+  var d = new Date(req.query.startDate);
+  var yeterdaydt=new Date(d.setDate(d.getDate() - 1)).toISOString() .substring(0, 10);
+  var todaydate = req.query.startDate.toString();
+  console.log("todaydate",todaydate);
+  var userMeeting = await Meeting.find({
+    $and: [{ userId: req.query.userId }, { isRead:false },{startDate:{$gte: yeterdaydt, $lte: todaydate}}],
+  });
+
+  var dt = new Date();
+  var getTime = new Date();
+  getTime.setMinutes(dt.getMinutes()+15);
+  const localTime = getTime.getHours() + ":" + getTime.getMinutes() + ":" + getTime.getSeconds();
+  console.log("localTime",localTime);
+  
+  var respArray=[];
+  let yetsdate=userMeeting.filter(e=>!(Date.parse(e.startDate)>=Date.parse(todaydate)));
+  respArray.push(yetsdate);
+  
+  console.log("todayMeeting",yetsdate.length);
+
+  userMeeting.filter(dts=>!yetsdate.includes(dts)).map(element=>{
+    let date = new Date(new Date().toLocaleString('en-US', { timeZone: req.query.tz }));
+    let localTime = moment(date).add(15, 'minutes').format("HH:mm");
+    var timeString = element.startTime;
+    const time = new Date("January 1, 2022 " + timeString);
+    const ttt = time.getHours() + ":" + time.getMinutes();
+    if(ttt <= localTime){
+      respArray.push(element);
+    }
+});
+  res.json(respArray);
+});
+
 module.exports = {
   uploadDocument,
   getDocuments,
@@ -320,8 +355,9 @@ module.exports = {
   getFileNameList,
   deleteDocumentById,
   createMeeting,
-  //getMeetingsbyId,
+  getMeetingsbyId,
   getMeetingsbyRead,
   updateRead,
   deleteMeetingbyId,
+  getListOfMeetings,
 };

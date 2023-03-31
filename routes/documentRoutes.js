@@ -9,10 +9,11 @@ const {
   getFileNameList,
   deleteDocumentById,
   createMeeting,
- // getMeetingsbyId,
+  getMeetingsbyId,
   deleteMeetingbyId,
   getMeetingsbyRead,
   updateRead,
+  getListOfMeetings,
 } = require("../controllers/documentController");
 
 const storage = multer.diskStorage({
@@ -74,7 +75,9 @@ router.put("/updateDocument/:_id", updateDocuments);
 router.delete("/deleteDocument/:_id", deleteDocumentById);
 
 router.post("/createMeeting", meetingupload, createMeeting);
-router.get("/getMeetings", getMeetingsbyRead);
+router.get("/getMeetings", getMeetingsbyId);
+router.get("/getMeetingRead", getMeetingsbyRead);
 router.put("/updateRead/:_id", updateRead);
 router.delete("/deletemeeting/:_id", deleteMeetingbyId);
+router.get("/getMeetingList", getListOfMeetings);
 module.exports = router;
