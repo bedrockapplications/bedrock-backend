@@ -68,11 +68,15 @@ socketIO.on("connection", function (socket) {
            let datas=res.data;
            if(datas.length>0){
               let yetsdate=datas.filter(e=>!(Date.parse(e.startDate)>=Date.parse(dt.toString())));
-              respArray.push(yetsdate);
+              if(yetsdate.length>0)
+                respArray.push(yetsdate);
               datas.filter(dts=>!yetsdate.includes(dts)).map(element=>{
                 let date =new Date(new Date().toLocaleString('en-US', { timeZone: data.tz }));
                 let result1 = moment(date).add(15, 'minutes').format("HH:mm");
-                if(element.startTime===result1.toString()){
+                //let time = new Date("January 1, 2022 " + element.startTime);
+                //let ttt = time.getHours() + ":" + time.getMinutes();
+                let actualTime=moment(date).format("HH:mm");
+                if(element.startTime===result1.toString() || element.startTime>=actualTime){
                   respArray.push(element);
                 }
           });
@@ -83,7 +87,7 @@ socketIO.on("connection", function (socket) {
          })
          .catch(err => console.log(err));
        
-      }, 6000);
+      }, 60000);
     })
   
 
