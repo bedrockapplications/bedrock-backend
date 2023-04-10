@@ -72,11 +72,16 @@ socketIO.on("connection", function (socket) {
                 respArray.push(yetsdate);
               datas.filter(dts=>!yetsdate.includes(dts)).map(element=>{
                 let date =new Date(new Date().toLocaleString('en-US', { timeZone: data.tz }));
-                let result1 = moment(date).add(15, 'minutes').format("HH:mm");
-                //let time = new Date("January 1, 2022 " + element.startTime);
+                let result1 = moment(date).add(16, 'minutes').format("HH:mm");
+                let time = new Date("January 1, 2022 " + element.startTime);
                 //let ttt = time.getHours() + ":" + time.getMinutes();
                 let actualTime=moment(date).format("HH:mm");
-                if(element.startTime===result1.toString() || element.startTime>=actualTime){
+                let recTime=moment(time).format("HH:mm");
+                var format = 'hh:mm'
+                var rTime = moment(recTime,format),
+                beforeTime = moment(actualTime, format),
+                afterTime = moment(result1, format);//element.startTime===result1.toString()
+                if(rTime.isBetween(beforeTime, afterTime)){
                   respArray.push(element);
                 }
           });
