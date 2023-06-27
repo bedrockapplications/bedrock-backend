@@ -46,7 +46,7 @@ app.get("/", function (req, res) {
 
 
 
-http.listen(3000, () => {
+http.listen(port, () => {
   console.log("server started on port 3000");
 });
 
